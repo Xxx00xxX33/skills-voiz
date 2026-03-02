@@ -1,4 +1,5 @@
 # Unmute your intelligent bot
+<img width="1760" height="608" alt="banner" src="https://github.com/user-attachments/assets/79efa5ae-e056-426c-ae67-362dd0f44963" />
 
 English | [简体中文](./README.zh-CN.md)
 
@@ -40,20 +41,33 @@ bash skills/characteristic-voice/scripts/speak.sh \
 Sample outputs for quick listening (MP4 for inline playback):
 
 - Breaking news style
-https://github.com/user-attachments/assets/0c072964-ac62-47f6-8a3e-590b7df70b89
+
+
+https://github.com/user-attachments/assets/e1e75371-49e2-4858-9993-428d999c3723
+
+
 
 
 - Mindful calm style  
-https://github.com/user-attachments/assets/e0656f64-4fff-4915-8860-d65daa41f7c2
+
+
+https://github.com/user-attachments/assets/d2e6472d-9edf-449d-a5ee-51ad7e19a861
+
+
 
 
 
 - Podcast intro style  
-https://github.com/user-attachments/assets/e2c15b98-86b8-4d34-80f2-bbca1534c8fe
+
+
+https://github.com/user-attachments/assets/e8f78ffa-7f12-4475-b1af-09161b3ee01b
+
 
 
 - Startup hype style  
-https://github.com/user-attachments/assets/a63c618b-c12a-4df0-9765-b54fd1980871
+
+
+https://github.com/user-attachments/assets/0d3b8af9-2288-4a63-9246-2748ed232b0e
 
 
 
