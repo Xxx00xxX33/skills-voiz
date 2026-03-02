@@ -3,6 +3,7 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 NOIZ_KEY_FILE="$HOME/.noiz_api_key"
+DEFAULT_NOIZ_REF_AUDIO_URL="https://storage.googleapis.com/noiz_audio_public/resource/audio/ref_cn_fm1.WAV"
 
 usage() {
   cat <<'EOF'
@@ -27,10 +28,13 @@ EOF
 
 load_api_key() {
   if [[ -n "${NOIZ_API_KEY:-}" ]]; then
+    NOIZ_API_KEY="$(normalize_api_key_base64 "$NOIZ_API_KEY")"
+    export NOIZ_API_KEY
     return 0
   fi
   if [[ -f "$NOIZ_KEY_FILE" ]]; then
     NOIZ_API_KEY="$(tr -d '[:space:]' < "$NOIZ_KEY_FILE")"
+    NOIZ_API_KEY="$(normalize_api_key_base64 "$NOIZ_API_KEY")"
     export NOIZ_API_KEY
     [[ -n "$NOIZ_API_KEY" ]] && return 0
   fi
@@ -38,8 +42,40 @@ load_api_key() {
 }
 
 save_api_key() {
-  printf '%s' "$1" > "$NOIZ_KEY_FILE"
+  local normalized
+  normalized="$(normalize_api_key_base64 "$1")"
+  printf '%s' "$normalized" > "$NOIZ_KEY_FILE"
   chmod 600 "$NOIZ_KEY_FILE"
+}
+
+normalize_api_key_base64() {
+  local raw="$1"
+  python3 - "$raw" <<'PY'
+import base64
+import binascii
+import sys
+
+value = sys.argv[1].strip()
+if not value:
+    print("", end="")
+    raise SystemExit(0)
+
+def is_base64(v: str) -> bool:
+    padded = v + ("=" * (-len(v) % 4))
+    try:
+        decoded = base64.b64decode(padded, validate=True)
+    except binascii.Error:
+        return False
+    if not decoded:
+        return False
+    canonical = base64.b64encode(decoded).decode("ascii").rstrip("=")
+    return canonical == v.rstrip("=")
+
+if is_base64(value):
+    print(value, end="")
+else:
+    print(base64.b64encode(value.encode("utf-8")).decode("ascii"), end="")
+PY
 }
 
 # ── Auto-detect backend ──────────────────────────────────────────────
@@ -98,6 +134,19 @@ except Exception:
     print('  (could not parse response)', file=sys.stderr)
     sys.exit(1)
 "
+}
+
+prepare_ref_audio() {
+  local ref_audio_input="$1"
+  if [[ "$ref_audio_input" =~ ^https?:// ]]; then
+    local tmp_ref
+    tmp_ref="$(mktemp /tmp/noiz_ref_audio.XXXXXX.wav)"
+    echo "[noiz] Downloading reference audio: $ref_audio_input" >&2
+    curl -fsSL "$ref_audio_input" -o "$tmp_ref"
+    echo "$tmp_ref"
+    return 0
+  fi
+  echo "$ref_audio_input"
 }
 
 # ── speak (simple mode) ──────────────────────────────────────────────
@@ -169,6 +218,7 @@ cmd_speak() {
   else
     load_api_key || true
     local api_key="${NOIZ_API_KEY:-}"
+    local downloaded_ref_audio=""
     if [[ -z "$api_key" ]]; then
       echo "Error: NOIZ_API_KEY not configured." >&2
       echo "  Get your key at https://developers.noiz.ai" >&2
@@ -178,17 +228,13 @@ cmd_speak() {
     ensure_noiz_ready
 
     if [[ -z "$voice_id" && -z "$ref_audio" ]]; then
-      echo "[noiz] --voice-id not provided, selecting the first built-in voice automatically..." >&2
-      # fetch_voices_list returns "id  name  labels"; auto-select must pass only raw id.
-      voice_id="$(fetch_voices_list "$api_key" 1 "built-in" "whisper" | awk 'NF { print $1; exit }' || true)"
-      if [[ -z "$voice_id" ]]; then
-        echo "Error: failed to auto-select a built-in voice from Noiz. Please pass --voice-id or --ref-audio." >&2
-        echo "" >&2
-        echo "Available built-in voices:" >&2
-        fetch_voices_list "$api_key" 5 "built-in" "whisper" >&2 || true
-        exit 1
-      fi
-      echo "[noiz] Auto-selected voice_id: $voice_id" >&2
+      # Prefer a stable reference voice for daily cloning-style usage.
+      ref_audio="$DEFAULT_NOIZ_REF_AUDIO_URL"
+      echo "[noiz] Using default reference audio: $ref_audio" >&2
+    fi
+    if [[ -n "$ref_audio" && "$ref_audio" =~ ^https?:// ]]; then
+      downloaded_ref_audio="$(prepare_ref_audio "$ref_audio")"
+      ref_audio="$downloaded_ref_audio"
     fi
 
     local cmd=(python3 "$SCRIPT_DIR/noiz_tts.py" --api-key "$api_key" --output "$output" --output-format "$format")
@@ -209,6 +255,7 @@ cmd_speak() {
     $save_voice           && cmd+=(--save-voice)
 
     "${cmd[@]}"
+    [[ -n "$downloaded_ref_audio" ]] && rm -f "$downloaded_ref_audio"
   fi
 }
 

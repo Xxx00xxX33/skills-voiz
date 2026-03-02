@@ -9,10 +9,10 @@ Make your AI agent sound like a real companion — one who sighs, laughs, hesita
 
 ## Triggers
 
-- characteristic voice
+- say like
+- talk like
+- speak like 
 - companion voice
-- talk like a friend
-- good morning / good night voice
 - comfort me
 - cheer me up
 - sound more human

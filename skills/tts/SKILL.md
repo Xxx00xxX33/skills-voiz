@@ -9,9 +9,9 @@ Convert any text into speech audio. Supports two backends (Kokoro local, Noiz cl
 
 ## Triggers
 
-- text to speech / tts / read aloud / generate audio
-- voice clone / subtitle dubbing / srt to audio
-- epub to audio / markdown to audio / kokoro
+- text to speech / tts / speak / say
+- voice clone / dubbing 
+- epub to audio / srt to audio / convert to audio
 
 ## Simple Mode — text to audio
 

@@ -57,10 +57,13 @@ resolve_preset() {
 
 load_api_key() {
   if [[ -n "${NOIZ_API_KEY:-}" ]]; then
+    NOIZ_API_KEY="$(normalize_api_key_base64 "$NOIZ_API_KEY")"
+    export NOIZ_API_KEY
     return 0
   fi
   if [[ -f "$NOIZ_KEY_FILE" ]]; then
     NOIZ_API_KEY="$(tr -d '[:space:]' < "$NOIZ_KEY_FILE")"
+    NOIZ_API_KEY="$(normalize_api_key_base64 "$NOIZ_API_KEY")"
     export NOIZ_API_KEY
     [[ -n "$NOIZ_API_KEY" ]] && return 0
   fi
@@ -68,8 +71,40 @@ load_api_key() {
 }
 
 save_api_key() {
-  printf '%s' "$1" > "$NOIZ_KEY_FILE"
+  local normalized
+  normalized="$(normalize_api_key_base64 "$1")"
+  printf '%s' "$normalized" > "$NOIZ_KEY_FILE"
   chmod 600 "$NOIZ_KEY_FILE"
+}
+
+normalize_api_key_base64() {
+  local raw="$1"
+  python3 - "$raw" <<'PY'
+import base64
+import binascii
+import sys
+
+value = sys.argv[1].strip()
+if not value:
+    print("", end="")
+    raise SystemExit(0)
+
+def is_base64(v: str) -> bool:
+    padded = v + ("=" * (-len(v) % 4))
+    try:
+        decoded = base64.b64decode(padded, validate=True)
+    except binascii.Error:
+        return False
+    if not decoded:
+        return False
+    canonical = base64.b64encode(decoded).decode("ascii").rstrip("=")
+    return canonical == v.rstrip("=")
+
+if is_base64(value):
+    print(value, end="")
+else:
+    print(base64.b64encode(value.encode("utf-8")).decode("ascii"), end="")
+PY
 }
 
 cmd_config() {

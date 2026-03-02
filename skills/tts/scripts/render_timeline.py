@@ -10,6 +10,8 @@ calls TTS for each segment, normalizes to exact duration, delays to
 correct start time, and mixes into one timeline track.
 """
 import argparse
+import base64
+import binascii
 import json
 import re
 import shutil
@@ -21,6 +23,21 @@ from pathlib import Path
 from typing import Any, Dict, List, Tuple
 
 TIMESTAMP_RE = re.compile(r"^(\d{2}):(\d{2}):(\d{2})[,.](\d{3})$")
+
+
+def normalize_api_key_base64(api_key: str) -> str:
+    key = api_key.strip()
+    if not key:
+        return key
+    padded = key + ("=" * (-len(key) % 4))
+    try:
+        decoded = base64.b64decode(padded, validate=True)
+        canonical = base64.b64encode(decoded).decode("ascii").rstrip("=")
+        if decoded and canonical == key.rstrip("="):
+            return key
+    except binascii.Error:
+        pass
+    return base64.b64encode(key.encode("utf-8")).decode("ascii")
 
 
 @dataclass
@@ -337,6 +354,8 @@ def main() -> int:
     if args.backend == "noiz" and not args.api_key:
         print("Error: --api-key is required for noiz backend.", file=sys.stderr)
         return 1
+    if args.api_key:
+        args.api_key = normalize_api_key_base64(args.api_key)
 
     try:
         ensure_ffmpeg()

@@ -6,12 +6,29 @@ voice cloning via reference audio, and emotion parameters.
 Use kokoro-tts CLI directly for the Kokoro backend (no wrapper needed).
 """
 import argparse
+import base64
+import binascii
 import json
 import sys
 from pathlib import Path
 from typing import Any, Dict, Optional
 
 import requests
+
+
+def normalize_api_key_base64(api_key: str) -> str:
+    key = api_key.strip()
+    if not key:
+        return key
+    padded = key + ("=" * (-len(key) % 4))
+    try:
+        decoded = base64.b64decode(padded, validate=True)
+        canonical = base64.b64encode(decoded).decode("ascii").rstrip("=")
+        if decoded and canonical == key.rstrip("="):
+            return key
+    except binascii.Error:
+        pass
+    return base64.b64encode(key.encode("utf-8")).decode("ascii")
 
 
 def call_emotion_enhance(
@@ -121,6 +138,7 @@ def main() -> int:
     parser.add_argument("--save-voice", action="store_true")
     parser.add_argument("--timeout-sec", type=int, default=120)
     args = parser.parse_args()
+    args.api_key = normalize_api_key_base64(args.api_key)
 
     try:
         if args.text_file:
