@@ -37,12 +37,16 @@ bash skills/characteristic-voice/scripts/speak.sh \
 
 ## English Audio Demos
 
-Sample outputs for quick listening:
+Sample outputs for quick listening (MP4 for inline playback):
 
-- Breaking news style: [demo-breaking-news.wav](./examples/audio/demo-breaking-news.wav)
-- Mindful calm style: [demo-mindful-calm.wav](./examples/audio/demo-mindful-calm.wav)
-- Podcast intro style: [demo-podcast-intro.wav](./examples/audio/demo-podcast-intro.wav)
-- Startup hype style: [demo-startup-hype.wav](./examples/audio/demo-startup-hype.wav)
+- Breaking news style  
+  <video src="./examples/audio/demo-breaking-news.mp4" controls></video>
+- Mindful calm style  
+  <video src="./examples/audio/demo-mindful-calm.mp4" controls></video>
+- Podcast intro style  
+  <video src="./examples/audio/demo-podcast-intro.mp4" controls></video>
+- Startup hype style  
+  <video src="./examples/audio/demo-startup-hype.mp4" controls></video>
 
 ## Noiz API Key (recommended)
 

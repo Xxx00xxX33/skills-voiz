@@ -36,12 +36,16 @@ bash skills/characteristic-voice/scripts/speak.sh \
 
 ## 英文音频示例
 
-可直接点击试听以下示例：
+可直接试听以下示例（转为 MP4 以支持页面内播放）：
 
-- 新闻快讯风格：[demo-breaking-news.wav](./examples/audio/demo-breaking-news.wav)
-- 冥想治愈风格：[demo-mindful-calm.wav](./examples/audio/demo-mindful-calm.wav)
-- 播客开场风格：[demo-podcast-intro.wav](./examples/audio/demo-podcast-intro.wav)
-- 创业激励风格：[demo-startup-hype.wav](./examples/audio/demo-startup-hype.wav)
+- 新闻快讯风格  
+  <video src="./examples/audio/demo-breaking-news.mp4" controls></video>
+- 冥想治愈风格  
+  <video src="./examples/audio/demo-mindful-calm.mp4" controls></video>
+- 播客开场风格  
+  <video src="./examples/audio/demo-podcast-intro.mp4" controls></video>
+- 创业激励风格  
+  <video src="./examples/audio/demo-startup-hype.mp4" controls></video>
 
 ## Noiz API Key（推荐）
 
