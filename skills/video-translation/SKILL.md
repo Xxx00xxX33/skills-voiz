@@ -57,11 +57,10 @@ When the user asks to translate a video:
    bash skills/tts/scripts/tts.sh render --srt translated.srt --voice-map voice_map.json --backend noiz --auto-emotion --ref-audio-track original_video.mp4 -o dubbed.wav
    ```
 
-4. **Replace / Mix Audio in Video**:
-   Use the `replace_audio.sh` script to merge the original video with the new dubbed audio.  
-   The script keeps the original video's **non-speech audio** (music, ambience, SFX, etc.) for regions outside subtitle timestamps, and ducks it under the dubbed voice only where the TTS track is present (subtitle-aligned). A short **fade-in** (0.15s) at the start is applied to reduce clicks; per-segment fade-in/out at each subtitle boundary is optional and can be added later if needed.
+4. **Replace Audio in Video**:
+   Use the `replace_audio.sh` script to merge the original video with the new dubbed audio. To keep the original video's non-speech audio background outside of translated segments, pass the `--srt` file.
    ```bash
-   bash skills/video-translation/scripts/replace_audio.sh --video original_video.mp4 --audio dubbed.wav --output final_video.mp4
+   bash skills/video-translation/scripts/replace_audio.sh --video original_video.mp4 --audio dubbed.wav --output final_video.mp4 --srt translated.srt
    ```
 
 5. **Present the Result**:
