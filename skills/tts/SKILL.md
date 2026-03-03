@@ -1,6 +1,6 @@
 ---
 name: tts
-description: Convert text into speech with Kokoro or Noiz, including simple and timeline-aligned modes.
+description: "Use this skill whenever the user wants to convert text into speech, generate audio from text, or produce voiceovers. Triggers include: any mention of 'TTS', 'text to speech', 'speak', 'say', 'voice', 'read aloud', 'audio narration', 'voiceover', 'dubbing', or requests to turn written content into spoken audio. Also use when converting EPUB/PDF/SRT/articles to audio, cloning voices from reference audio, controlling emotion or speed in speech, aligning speech to subtitle timelines, or producing per-segment voice-mapped audio. If the user asks for an 'audiobook', 'podcast narration', 'voice clone', 'dubbed audio', or similar deliverable as a .wav/.mp3 audio file, use this skill. Do NOT use for music generation, sound effects, audio editing unrelated to speech, or general coding tasks unrelated to TTS."
 ---
 
 # tts
@@ -12,6 +12,8 @@ Convert any text into speech audio. Supports two backends (Kokoro local, Noiz cl
 - text to speech / tts / speak / say
 - voice clone / dubbing 
 - epub to audio / srt to audio / convert to audio
+- 语音 / 说 / 讲 / 说话
+
 
 ## Simple Mode — text to audio
 
