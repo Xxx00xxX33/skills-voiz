@@ -88,3 +88,7 @@ Key 会持久化到 `~/.noiz_api_key` 并自动加载。也可以传 `--backend 
 ## 贡献说明
 
 技能编写规范、目录约定与 PR 流程，请查看 `CONTRIBUTING.md`。
+
+
+## 问题和讨论
+![d986f4796145eb56bfad7e5d6b83f123](https://github.com/user-attachments/assets/36ad064f-2bd5-4bae-ae45-dec3fd7471b6)
