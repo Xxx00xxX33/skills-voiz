@@ -10,15 +10,19 @@ usage() {
   cat <<'EOF'
 Usage:
   tts.sh speak  [options]   — text to audio (simple mode)
-  tts.sh render [options]   — SRT to timeline-accurate audio
-  tts.sh to-srt [options]   — text file to SRT with auto timings
-  tts.sh config [options]   — check / set NOIZ_API_KEY
+  tts.sh speak_and_send_feishu    — speak + send Feishu voice message
+  tts.sh speak_and_send_telegram  — speak + send Telegram voice message
+  tts.sh speak_and_send_discord   — speak + send Discord voice message
+  tts.sh render [options]  — SRT to timeline-accurate audio
+  tts.sh to-srt [options]  — text file to SRT with auto timings
+  tts.sh config [options]  — check / set NOIZ_API_KEY
 
 Examples:
-  tts.sh speak -t "Hello" -v af_sarah -o hello.wav  # plays directly via system audio if no -o is provided
-  tts.sh speak -f article.txt -v zf_xiaoni --lang cmn -o out.mp3
-  tts.sh speak -t "Hi" --backend noiz --voice-id abc -o hi.wav
-  tts.sh speak -t "Hi" --ref-audio ./my.wav -o clone.wav   # Noiz: own ref audio (path or URL)
+  tts.sh speak -t "Hello" -v af_sarah -o hello.wav
+  tts.sh speak -t "Hi" --ref-audio ./my.wav -o clone.wav
+  tts.sh speak_and_send_feishu    -t "你好" --chat-id oc_xxx --app-id cli_xxx --app-secret xxx
+  tts.sh speak_and_send_telegram  -t "你好" --chat-id 123456 --bot-token BOT_TOKEN
+  tts.sh speak_and_send_discord   -t "Hello" --channel-id 123456 --bot-token BOT_TOKEN
   tts.sh render --srt input.srt --voice-map vm.json -o output.wav
   tts.sh to-srt -i article.txt -o article.srt
   tts.sh config --set-api-key YOUR_KEY
@@ -309,6 +313,13 @@ cmd_speak() {
   fi
 }
 
+# ── third-party senders ───────────────────────────────────────────────
+
+if [[ -f "$SCRIPT_DIR/third_party_sender.sh" ]]; then
+  # shellcheck source=/dev/null
+  source "$SCRIPT_DIR/third_party_sender.sh"
+fi
+
 # ── render (timeline mode) ───────────────────────────────────────────
 
 cmd_render() {
@@ -428,8 +439,23 @@ GUIDE
 
 # ── dispatch ──────────────────────────────────────────────────────────
 
+_dispatch_sender() {
+  local func="$1"; shift
+  if ! declare -F "$func" >/dev/null; then
+    echo "Error: third-party sender module not loaded ($SCRIPT_DIR/third_party_sender.sh)." >&2
+    exit 1
+  fi
+  "$func" "$@"
+}
+
 case "${1:-}" in
   speak)   shift; cmd_speak "$@" ;;
+  speak_and_send_feishu|speak-and-send-feishu)
+    shift; _dispatch_sender cmd_speak_and_send_feishu "$@" ;;
+  speak_and_send_telegram|speak-and-send-telegram)
+    shift; _dispatch_sender cmd_speak_and_send_telegram "$@" ;;
+  speak_and_send_discord|speak-and-send-discord)
+    shift; _dispatch_sender cmd_speak_and_send_discord "$@" ;;
   render)  shift; cmd_render "$@" ;;
   to-srt)  shift; cmd_to_srt "$@" ;;
   config)  shift; cmd_config "$@" ;;

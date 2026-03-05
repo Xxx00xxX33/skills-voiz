@@ -26,7 +26,29 @@ bash skills/tts/scripts/tts.sh speak -f article.txt -v zf_xiaoni --lang cmn -o o
 # Use your own reference audio: local file path or URL.
 bash skills/tts/scripts/tts.sh speak -t "Hello" --ref-audio ./ref.wav
 bash skills/tts/scripts/tts.sh speak -t "Hello" --ref-audio https://example.com/my_voice.wav -o clone.wav
+
+# Speak and send to messaging platforms (ffmpeg required)
+# Telegram — sends ogg/opus via sendVoice
+bash skills/tts/scripts/tts.sh speak_and_send_telegram \
+  -t "Hello"
+
+# Discord — 3-step upload + voice message (flags=8192)
+bash skills/tts/scripts/tts.sh speak_and_send_discord \
+  -t "Hello"
+
+# Feishu — uploads opus, sends msg_type=audio
+bash skills/tts/scripts/tts.sh speak_and_send_feishu \
+  -t "你好呀"
+
 ```
+
+All three senders read credentials from env variables first.
+
+| Platform | Env variables | CLI Params | 
+|----------|--------------|--------------|
+| Feishu   | `FEISHU_APP_ID`, `FEISHU_APP_SECRET`, `FEISHU_CHAT_ID`, `FEISHU_TENANT_ACCESS_TOKEN` |  `chat-id` `app-id` `app-secret` |
+| Telegram | `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID` | `chat-id` `bot-token` |
+| Discord  | `DISCORD_BOT_TOKEN`, `DISCORD_CHANNEL_ID` | `channel-id` `bot-token` |
 
 ## Timeline Mode — SRT to time-aligned audio
 
