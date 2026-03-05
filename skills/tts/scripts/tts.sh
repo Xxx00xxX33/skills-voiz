@@ -101,6 +101,16 @@ detect_backend() {
   fi
 }
 
+# ── Portable mktemp with suffix (macOS mktemp only replaces trailing Xs) ──
+
+_mktemp_suffixed() {
+  local base="$1" suffix="$2"
+  local tmp
+  tmp="$(mktemp "${base}_XXXXXX")"
+  mv "$tmp" "${tmp}${suffix}"
+  echo "${tmp}${suffix}"
+}
+
 # ── Noiz helpers ─────────────────────────────────────────────────────
 
 ensure_noiz_ready() {
@@ -159,7 +169,7 @@ prepare_ref_audio() {
   local ref_audio_input="$1"
   if [[ "$ref_audio_input" =~ ^https?:// ]]; then
     local tmp_ref
-    tmp_ref="$(mktemp /tmp/noiz_ref_audio.XXXXXX.wav)"
+    tmp_ref="$(_mktemp_suffixed /tmp/noiz_ref_audio .wav)"
     echo "[noiz] Downloading reference audio: $ref_audio_input" >&2
     curl -fsSL "$ref_audio_input" -o "$tmp_ref"
     echo "$tmp_ref"
@@ -200,7 +210,7 @@ cmd_speak() {
 
   if [[ -z "$output" ]]; then
     play_mode=true
-    tmp_output="$(mktemp /tmp/tts_play.XXXXXX.wav)"
+    tmp_output="$(_mktemp_suffixed /tmp/tts_play .wav)"
     output="$tmp_output"
   fi
   if [[ -z "$text" && -z "$text_file" ]]; then
@@ -226,7 +236,7 @@ cmd_speak() {
     # Write text to temp file if passed as string
     local input_path="$text_file"
     if [[ -n "$text" ]]; then
-      input_path="$(mktemp /tmp/tts_input.XXXXXX.txt)"
+      input_path="$(_mktemp_suffixed /tmp/tts_input .txt)"
       printf '%s' "$text" > "$input_path"
     fi
 

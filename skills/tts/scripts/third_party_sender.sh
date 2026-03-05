@@ -177,8 +177,8 @@ EOF
   _sender_require python3 feishu
 
   local tts_wav tts_opus
-  tts_wav="$(mktemp /tmp/tts_feishu.XXXXXX.wav)"
-  tts_opus="$(mktemp /tmp/tts_feishu.XXXXXX.opus)"
+  tts_wav="$(_mktemp_suffixed /tmp/tts_feishu .wav)"
+  tts_opus="$(_mktemp_suffixed /tmp/tts_feishu .opus)"
   trap 'rm -f "$tts_wav" "$tts_opus"' EXIT
 
   _build_speak_args "$tts_wav"
@@ -265,8 +265,8 @@ EOF
   _sender_require python3 telegram
 
   local tts_wav tts_ogg
-  tts_wav="$(mktemp /tmp/tts_telegram.XXXXXX.wav)"
-  tts_ogg="$(mktemp /tmp/tts_telegram.XXXXXX.ogg)"
+  tts_wav="$(_mktemp_suffixed /tmp/tts_telegram .wav)"
+  tts_ogg="$(_mktemp_suffixed /tmp/tts_telegram .ogg)"
   trap 'rm -f "$tts_wav" "$tts_ogg"' EXIT
 
   _build_speak_args "$tts_wav"
@@ -362,8 +362,8 @@ EOF
   _sender_require python3 discord
 
   local tts_wav tts_ogg
-  tts_wav="$(mktemp /tmp/tts_discord.XXXXXX.wav)"
-  tts_ogg="$(mktemp /tmp/tts_discord.XXXXXX.ogg)"
+  tts_wav="$(_mktemp_suffixed /tmp/tts_discord .wav)"
+  tts_ogg="$(_mktemp_suffixed /tmp/tts_discord .ogg)"
   trap 'rm -f "$tts_wav" "$tts_ogg"' EXIT
 
   _build_speak_args "$tts_wav"

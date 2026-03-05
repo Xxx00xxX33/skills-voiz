@@ -19,8 +19,8 @@ Convert any text into speech audio. Supports two backends (Kokoro local, Noiz cl
 
 ```bash
 # speak (auto-detected when installed)
-bash skills/tts/scripts/tts.sh speak -t "Hello world" -v af_sarah # add -o path if you need to store result for later usage
-bash skills/tts/scripts/tts.sh speak -f article.txt -v zf_xiaoni --lang cmn -o out.mp3 --format mp3
+bash skills/tts/scripts/tts.sh speak -t "Hello world" # add -o path if you need to store result for later usage
+bash skills/tts/scripts/tts.sh speak -f article.txt -o out.mp3
 
 # Voice cloning
 # Use your own reference audio: local file path or URL.
