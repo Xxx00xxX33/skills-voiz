@@ -133,7 +133,7 @@ _feishu_get_token() {
 
 cmd_speak_and_send_feishu() {
   _parse_common_speak_opts "$@"
-  set -- "${_SA_REMAINING[@]}"
+  set -- ${_SA_REMAINING[@]+"${_SA_REMAINING[@]}"}
 
   local chat_id="${FEISHU_CHAT_ID:-}"
   local app_id="${FEISHU_APP_ID:-}" app_secret="${FEISHU_APP_SECRET:-}"
@@ -228,7 +228,7 @@ EOF
 
 cmd_speak_and_send_telegram() {
   _parse_common_speak_opts "$@"
-  set -- "${_SA_REMAINING[@]}"
+  set -- ${_SA_REMAINING[@]+"${_SA_REMAINING[@]}"}
 
   local chat_id="${TELEGRAM_CHAT_ID:-}"
   local bot_token="${TELEGRAM_BOT_TOKEN:-}"
@@ -311,7 +311,7 @@ PY
 
 cmd_speak_and_send_discord() {
   _parse_common_speak_opts "$@"
-  set -- "${_SA_REMAINING[@]}"
+  set -- ${_SA_REMAINING[@]+"${_SA_REMAINING[@]}"}
 
   local channel_id="${DISCORD_CHANNEL_ID:-}"
   local bot_token="${DISCORD_BOT_TOKEN:-}"
