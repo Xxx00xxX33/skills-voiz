@@ -94,10 +94,8 @@ detect_backend() {
   fi
   if load_api_key; then
     echo "noiz"
-  elif command -v kokoro-tts &>/dev/null && kokoro-tts --help-voices &>/dev/null; then
-    echo "kokoro"
   else
-    echo ""
+    echo "noiz-guest"
   fi
 }
 
@@ -220,18 +218,6 @@ cmd_speak() {
   local backend
   backend="$(detect_backend "$backend_flag")"
 
-  if [[ -z "$backend" ]]; then
-    echo "Error: no TTS backend available." >&2
-    echo "" >&2
-    echo "  Option A — Noiz (recommended):" >&2
-    echo "    1. Get your API key from https://developers.noiz.ai/api-keys" >&2
-    echo "    2. Run: bash skills/tts/scripts/tts.sh config --set-api-key YOUR_KEY" >&2
-    echo "" >&2
-    echo "  Option B — Kokoro (offline, local):" >&2
-    echo "    uv tool install kokoro-tts" >&2
-    exit 1
-  fi
-
   if [[ "$backend" == "kokoro" ]]; then
     # Write text to temp file if passed as string
     local input_path="$text_file"
@@ -248,6 +234,35 @@ cmd_speak() {
     "${cmd[@]}"
 
     [[ -n "$text" ]] && rm -f "$input_path"
+  elif [[ "$backend" == "noiz-guest" ]]; then
+    ensure_noiz_ready
+
+    if [[ -z "$voice_id" ]]; then
+      echo "Error: --voice-id is required in guest mode (no API key configured)." >&2
+      echo "" >&2
+      echo "  To unlock all features (voice cloning, emotion, etc.), configure your API key:" >&2
+      echo "    1. Get your API key from https://developers.noiz.ai/api-keys" >&2
+      echo "    2. Run: bash skills/tts/scripts/tts.sh config --set-api-key YOUR_KEY" >&2
+      echo "" >&2
+      echo "  Or use Kokoro for offline local TTS:" >&2
+      echo "    uv tool install kokoro-tts" >&2
+      echo "    Then pass --backend kokoro" >&2
+      exit 1
+    fi
+
+    echo "[noiz-guest] Using guest mode (limited features, no API key required)" >&2
+    local cmd=(python3 "$SCRIPT_DIR/noiz_tts.py" --guest --output "$output" --output-format "$format")
+
+    if [[ -n "$text" ]]; then
+      cmd+=(--text "$text")
+    else
+      cmd+=(--text-file "$text_file")
+    fi
+
+    cmd+=(--voice-id "$voice_id")
+    [[ -n "$speed" ]] && cmd+=(--speed "$speed")
+
+    "${cmd[@]}"
   else
     load_api_key || true
     local api_key="${NOIZ_API_KEY:-}"
@@ -261,8 +276,6 @@ cmd_speak() {
     ensure_noiz_ready
 
     if [[ -z "$voice_id" && -z "$ref_audio" ]]; then
-      # Prefer a stable reference voice for daily cloning-style usage.
-      # Honour explicit --lang; otherwise detect from text content.
       local _ref_lang="$lang"
       if [[ -z "$_ref_lang" ]]; then
         local _sample="$text"
@@ -352,8 +365,9 @@ cmd_render() {
 
   local backend
   backend="$(detect_backend "$backend_flag")"
-  if [[ -z "$backend" ]]; then
-    echo "Error: no TTS backend available." >&2
+  if [[ "$backend" == "noiz-guest" ]]; then
+    echo "Error: render mode requires a Noiz API key or Kokoro backend." >&2
+    echo "  Guest mode does not support timeline rendering." >&2
     echo "" >&2
     echo "  Option A — Noiz (recommended):" >&2
     echo "    1. Get your API key from https://developers.noiz.ai/api-keys" >&2
@@ -361,6 +375,7 @@ cmd_render() {
     echo "" >&2
     echo "  Option B — Kokoro (offline, local):" >&2
     echo "    uv tool install kokoro-tts" >&2
+    echo "    Then pass --backend kokoro" >&2
     exit 1
   fi
 
@@ -431,11 +446,13 @@ cmd_config() {
   if load_api_key; then
     local masked="${NOIZ_API_KEY:0:4}****${NOIZ_API_KEY: -4}"
     echo "NOIZ_API_KEY is configured: $masked"
+    echo "  Backend: noiz (full features)"
   else
     cat <<GUIDE
 NOIZ_API_KEY is not configured.
+  Current fallback: noiz-guest (limited features, no API key required)
 
-Option A — Noiz (recommended):
+Option A — Noiz with API key (recommended, full features):
   1. Get your API key from https://developers.noiz.ai/api-keys
   2. Run:
      bash skills/tts/scripts/tts.sh config --set-api-key YOUR_KEY
@@ -443,6 +460,7 @@ Option A — Noiz (recommended):
 
 Option B — Kokoro (offline, local):
   uv tool install kokoro-tts
+  Then pass --backend kokoro
 GUIDE
   fi
 }

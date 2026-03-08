@@ -126,12 +126,48 @@ def synthesize(
     return duration_val
 
 
+def synthesize_guest(
+    base_url: str,
+    text: str,
+    voice_id: str,
+    output_format: str,
+    speed: float,
+    timeout: int,
+    out_path: Path,
+) -> float:
+    root = base_url.rstrip("/")
+    if root.endswith("/v1"):
+        root = root[:-3]
+    url = f"{root}/api/v1/guest/text-to-speech"
+
+    data: Dict[str, str] = {
+        "text": text,
+        "voice_id": voice_id,
+        "output_format": output_format,
+        "speed": str(speed),
+    }
+    resp = requests.post(url, data=data, timeout=timeout)
+
+    if resp.status_code != 200:
+        raise RuntimeError(
+            f"/guest/text-to-speech failed: status={resp.status_code}, body={resp.text}"
+        )
+
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    out_path.write_bytes(resp.content)
+    dur = resp.headers.get("X-Audio-Duration")
+    duration_val = float(dur) if dur else -1.0
+    out_path.with_suffix(".duration").write_text(str(duration_val))
+    return duration_val
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Simple TTS via Noiz API (no timeline).")
     g = parser.add_mutually_exclusive_group(required=True)
     g.add_argument("--text", help="Text string to synthesize")
     g.add_argument("--text-file", help="Path to text file")
-    parser.add_argument("--api-key", required=True)
+    parser.add_argument("--api-key")
+    parser.add_argument("--guest", action="store_true", help="Use guest endpoint (no API key)")
     parser.add_argument("--voice-id")
     parser.add_argument("--reference-audio", help="Local audio for voice cloning")
     parser.add_argument("--output", required=True)
@@ -152,7 +188,11 @@ def main() -> int:
     )
     parser.add_argument("--timeout-sec", type=int, default=120)
     args = parser.parse_args()
-    args.api_key = normalize_api_key_base64(args.api_key)
+
+    if not args.guest and not args.api_key:
+        parser.error("--api-key is required unless --guest is specified")
+    if args.api_key:
+        args.api_key = normalize_api_key_base64(args.api_key)
 
     try:
         if args.text_file:
@@ -170,28 +210,40 @@ def main() -> int:
                 file=sys.stderr,
             )
 
-        if args.auto_emotion:
-            text = call_emotion_enhance(
-                args.base_url, args.api_key, text, args.timeout_sec
+        if args.guest:
+            if not args.voice_id:
+                raise ValueError("--voice-id is required in guest mode")
+            out_duration = synthesize_guest(
+                base_url=args.base_url,
+                text=text,
+                voice_id=args.voice_id,
+                output_format=args.output_format,
+                speed=args.speed,
+                timeout=args.timeout_sec,
+                out_path=Path(args.output),
             )
-
-        ref = Path(args.reference_audio) if args.reference_audio else None
-        out_duration = synthesize(
-            base_url=args.base_url,
-            api_key=args.api_key,
-            text=text,
-            voice_id=args.voice_id,
-            reference_audio=ref,
-            output_format=args.output_format,
-            speed=args.speed,
-            emo=args.emo,
-            target_lang=args.target_lang,
-            similarity_enh=args.similarity_enh,
-            save_voice=args.save_voice,
-            duration=args.duration,
-            timeout=args.timeout_sec,
-            out_path=Path(args.output),
-        )
+        else:
+            if args.auto_emotion:
+                text = call_emotion_enhance(
+                    args.base_url, args.api_key, text, args.timeout_sec
+                )
+            ref = Path(args.reference_audio) if args.reference_audio else None
+            out_duration = synthesize(
+                base_url=args.base_url,
+                api_key=args.api_key,
+                text=text,
+                voice_id=args.voice_id,
+                reference_audio=ref,
+                output_format=args.output_format,
+                speed=args.speed,
+                emo=args.emo,
+                target_lang=args.target_lang,
+                similarity_enh=args.similarity_enh,
+                save_voice=args.save_voice,
+                duration=args.duration,
+                timeout=args.timeout_sec,
+                out_path=Path(args.output),
+            )
         print(f"Done. Output: {args.output} (duration: {out_duration}s)")
         return 0
     except Exception as exc:

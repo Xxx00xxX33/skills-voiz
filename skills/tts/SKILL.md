@@ -1,6 +1,6 @@
 ---
 name: tts
-description: "Use this skill whenever the user wants to convert text into speech, generate audio from text, or produce voiceovers. Triggers include: any mention of 'TTS', 'text to speech', 'speak', 'say', 'voice', 'read aloud', 'audio narration', 'voiceover', 'dubbing', or requests to turn written content into spoken audio. Also use when converting EPUB/PDF/SRT/articles to audio, cloning voices from reference audio, controlling emotion or speed in speech, aligning speech to subtitle timelines, or producing per-segment voice-mapped audio. If the user asks for an 'audiobook', 'podcast narration', 'voice clone', 'dubbed audio', or similar deliverable as a .wav/.mp3 audio file, use this skill. Do NOT use for music generation, sound effects, audio editing unrelated to speech, or general coding tasks unrelated to TTS."
+description: "Use this skill whenever the user wants to convert text into speech, generate audio from text, or produce voiceovers. Triggers include: any mention of 'TTS', 'text to speech', 'speak', 'say', 'voice', 'read aloud', 'audio narration', 'voiceover', 'dubbing', or requests to turn written content into spoken audio. Also use when converting EPUB/PDF/SRT/articles to audio, cloning voices from reference audio, controlling emotion or speed in speech, aligning speech to subtitle timelines, or producing per-segment voice-mapped audio.
 ---
 
 # tts
@@ -120,10 +120,42 @@ bash skills/tts/scripts/tts.sh render --srt input.srt --voice-map vm.json --back
 
 > When the user needs emotion control + voice cloning + precise duration together, Noiz is the only backend that supports all three.
 
+## Guest Mode (no API key)
+
+When no API key is configured, `tts.sh speak` automatically falls back to **guest mode** — a limited Noiz endpoint that requires no authentication. Guest mode only supports `--voice-id`, `--speed`, and `--format`; voice cloning, emotion, duration, and timeline rendering are not available.
+
+```bash
+# Guest mode (auto-detected when no API key is set)
+bash skills/tts/scripts/tts.sh speak -t "Hello" --voice-id 883b6b7c -o hello.wav
+
+# Explicit backend override to use kokoro instead
+bash skills/tts/scripts/tts.sh speak -t "Hello"  --backend kokoro
+```
+
+Available guest voices (15 built-in):
+
+| voice_id | name | lang | gender | tone |
+|---|---|---|---|---|
+| `063a4491` | 販売員（なおみ） | ja | F | 喜び |
+| `4252b9c8` | 落ち着いた女性 | ja | F | 穏やか |
+| `578b4be2` | 熱血漢（たける） | ja | M | 怒り |
+| `a9249ce7` | 安らぎ（みなと） | ja | M | 穏やか |
+| `f00e45a1` | 旅人（かいと） | ja | M | 穏やか |
+| `b4775100` | 悦悦｜社交分享 | zh | F | Joyful |
+| `77e15f2c` | 婉青｜情绪抚慰 | zh | F | Calm |
+| `ac09aeb4` | 阿豪｜磁性主持 | zh | M | Calm |
+| `87cb2405` | 建国｜知识科普 | zh | M | Calm |
+| `3b9f1e27` | 小明｜科技达人 | zh | M | Joyful |
+| `95814add` | Science Narration | en | M | Calm |
+| `883b6b7c` | The Mentor (Alex) | en | M | Joyful |
+| `a845c7de` | The Naturalist (Silas) | en | M | Calm |
+| `5a68d66b` | The Healer (Serena) | en | F | Calm |
+| `0e4ab6ec` | The Mentor (Maya) | en | F | Calm |
+
 ## Requirements
 
 - `ffmpeg` in PATH (timeline mode only)
-- Noiz: get your API key at [developers.noiz.ai/api-keys](https://developers.noiz.ai/api-keys), then run `bash skills/tts/scripts/tts.sh config --set-api-key YOUR_KEY`
+- Get your API key at [developers.noiz.ai/api-keys](https://developers.noiz.ai/api-keys), then run `bash skills/tts/scripts/tts.sh config --set-api-key YOUR_KEY` (guest mode works without a key but has limited features)
 - Kokoro: if already installed, pass `--backend kokoro` to use the local backend
 
 ### Noiz API authentication
