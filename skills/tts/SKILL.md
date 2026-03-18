@@ -1,20 +1,10 @@
 ---
 name: tts
 description: "Use this skill whenever the user wants to convert text into speech, generate audio from text, or produce voiceovers. Triggers include: any mention of 'TTS', 'text to speech', 'speak', 'say', 'voice', 'read aloud', 'audio narration', 'voiceover', 'dubbing', or requests to turn written content into spoken audio. Also use when converting EPUB/PDF/SRT/articles to audio, cloning voices from reference audio, controlling emotion or speed in speech, aligning speech to subtitle timelines, or producing per-segment voice-mapped audio."
-env:
-  - NOIZ_API_KEY  # optional; if set, used as Noiz API credential instead of key file
-runtime_requirements:
-  - requests  # required for Noiz backend; install with: uv pip install requests
-  - ffmpeg    # required only for timeline mode (render subcommand)
-  - kokoro-tts  # optional; needed only if using the Kokoro local backend
-file_access:
-  - ~/.config/noiz/api_key  # read/write; stores the Noiz API key
-  - ~/.noiz_api_key          # read-only; legacy key location, copied (not deleted) to new path on first run
-network_access:
-  - https://noiz.ai/v1/*                     # Noiz TTS API (authenticated and guest endpoints)
-  - https://storage.googleapis.com/noiz_audio_public/*  # default Chinese reference audio
-  - https://noiz.ai/resource/*               # default English reference audio
-  - user-supplied reference audio URLs       # downloaded only when --ref-audio is given a URL
+permissions:
+  - network
+  - filesystem
+metadata: {"openclaw": {"primaryEnv": "NOIZ_API_KEY"}}
 ---
 
 # tts
