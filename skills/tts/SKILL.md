@@ -141,6 +141,7 @@ Available guest voices (15 built-in):
 ## Requirements
 
 - `ffmpeg` in PATH (timeline mode only)
+- `requests` package: `uv pip install requests` (required for Noiz backend)
 - Get your API key at [Noiz Developer](https://developers.noiz.ai/api-keys), then run `python3 skills/tts/scripts/tts.py config --set-api-key YOUR_KEY` (guest mode works without a key but has limited features)
 - Kokoro: if already installed, pass `--backend kokoro` to use the local backend
 
