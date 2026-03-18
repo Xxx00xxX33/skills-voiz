@@ -1,18 +1,53 @@
 ---
 name: chat-with-anyone
 description: Chat with any real person or fictional character in their own voice by automatically finding their speech online, extracting a clean reference sample, and generating audio replies. Also supports generating a matching voice from an uploaded image. Use when the user says "我想跟xxx聊天", "你来扮演xxx跟我说话", "让xxx给我讲讲这篇文章", "我想跟图片中的人说话", or similar.
+permissions:
+  - network
+  - filesystem
+metadata: {"openclaw": {"primaryEnv": "NOIZ_API_KEY"}}
 ---
 
 # Chat with Anyone
 
 Clone a real person's voice from online video, or design a voice from a photo, then roleplay as that person with TTS.
 
+## Important: Ethical Use & Copyright
+
+This skill synthesizes speech that imitates real voices. Before proceeding, the agent **must**:
+
+1. **Never impersonate** someone to deceive, defraud, or harass.
+2. **Only use publicly available media** (public speeches, interviews, press conferences) as reference audio.
+3. **Inform the user** that generated audio is synthetic and should not be presented as genuine recordings.
+4. **Decline requests** that target private individuals who have not consented, or that are clearly intended for deception, harassment, or defamation.
+
+If the user's intent appears harmful, refuse politely and explain why.
+
 ## Prerequisites
 
-- `youtube-downloader` skill installed (Workflow A)
-- `tts` skill installed
-- `ffmpeg` on PATH
-- Noiz API key configured: `python3 skills/tts/scripts/tts.py config --set-api-key YOUR_KEY`
+| Dependency | Type | How to verify |
+|-----------|------|---------------|
+| `ffmpeg` | System binary | `ffmpeg -version` |
+| `yt-dlp` | System binary | `yt-dlp --version` |
+| `tts` skill | Cursor skill | `ls skills/tts/scripts/tts.py` |
+| `NOIZ_API_KEY` | Env var or file | `python3 skills/tts/scripts/tts.py config --show` |
+
+**Before the first run**, verify all dependencies are present:
+
+```bash
+ffmpeg -version && yt-dlp --version && ls skills/tts/scripts/tts.py
+```
+
+If `yt-dlp` is missing, install it:
+
+```bash
+uv pip install yt-dlp
+```
+
+If the Noiz API key is not configured:
+
+```bash
+python3 skills/tts/scripts/tts.py config --set-api-key YOUR_KEY
+```
 
 ## Mode Selection
 
@@ -41,7 +76,7 @@ If ambiguous (e.g. "US President", "Spider-Man actor"), ask the user to specify 
 
 ### A2. Find a Reference Video
 
-Use web search to find a YouTube video of the person speaking clearly. Best candidates: interviews, speeches, press conferences. Avoid videos with heavy background music.
+Use web search to find a YouTube (or Bilibili) video of the person speaking clearly. Best candidates: interviews, speeches, press conferences. Avoid videos with heavy background music.
 
 Search queries to try:
 - `{CHARACTER_NAME} interview` / `{CHARACTER_NAME} 采访`
@@ -51,8 +86,12 @@ Search queries to try:
 ### A3. Download Audio and Subtitles
 
 ```bash
-python skills/youtube-downloader/scripts/download_video.py "{VIDEO_URL}" \
-  -o "tmp/chat_with_anyone/{CHARACTER_NAME}" --audio-only --subtitles
+mkdir -p "tmp/chat_with_anyone/{CHARACTER_NAME}"
+yt-dlp -x --audio-format mp3 \
+  --write-subs --write-auto-subs --sub-langs "en,zh-Hans" \
+  --convert-subs srt \
+  -o "tmp/chat_with_anyone/{CHARACTER_NAME}/%(title)s.%(ext)s" \
+  "{VIDEO_URL}"
 ```
 
 After download, list the output directory to identify the audio file and SRT subtitle file:
@@ -63,7 +102,7 @@ ls tmp/chat_with_anyone/{CHARACTER_NAME}/
 
 Expected output: a `.mp3` audio file and one or more `.srt` subtitle files.
 
-**If no subtitle files appear**: try a different video that has auto-generated captions, or add `--sub-lang en,zh-Hans` to request specific languages.
+**If no subtitle files appear**: try a different video that has auto-generated captions, or adjust `--sub-langs` for the target language.
 
 ### A4. Extract Best Reference Segment
 
@@ -164,7 +203,7 @@ For subsequent messages, keep using the same `--voice-id` for consistency.
 1. Character: Donald Trump. No disambiguation needed.
 2. Search `Donald Trump speech youtube`, find a clear speech video.
 3. Download:
-   `python skills/youtube-downloader/scripts/download_video.py "https://youtube.com/watch?v=..." -o tmp/chat_with_anyone/trump --audio-only --subtitles`
+   `yt-dlp -x --audio-format mp3 --write-subs --write-auto-subs --sub-langs "en" --convert-subs srt -o "tmp/chat_with_anyone/trump/%(title)s.%(ext)s" "https://youtube.com/watch?v=..."`
 4. Extract reference:
    `python3 skills/chat-with-anyone/scripts/extract_ref_segment.py --srt "tmp/chat_with_anyone/trump/....srt" --audio "tmp/chat_with_anyone/trump/....mp3" -o "tmp/chat_with_anyone/trump/ref.wav"`
 5. Generate TTS in Trump's style:
@@ -188,7 +227,7 @@ For subsequent messages, keep using the same `--voice-id` for consistency.
 
 | Problem | Solution |
 |---------|----------|
-| Download fails or video unavailable | Try a different video URL; some regions/videos are restricted |
+| `yt-dlp` download fails or video unavailable | Try a different video URL; some regions/videos are restricted. Run `yt-dlp -U` to update |
 | No SRT subtitle files | Re-download with `--sub-lang en,zh-Hans`; if still none, try a different video with auto-captions |
 | `extract_ref_segment.py` finds no suitable window | Use `--min-duration 2` for shorter clips, or try a different video |
 | Voice design returns error | Check Noiz API key; ensure image is a clear photo of a person |

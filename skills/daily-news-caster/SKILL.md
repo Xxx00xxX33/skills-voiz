@@ -1,6 +1,14 @@
 ---
 name: daily-news-caster
 description: Fetches the latest news using news-aggregator-skill, formats it into a podcast script in Markdown format, and uses the tts skill to generate a podcast audio file. Use when the user asks to get the latest news and read it out as a podcast.
+dependencies:
+  skills:
+    - news-aggregator-skill
+    - tts
+  binaries:
+    - python3
+    - bash
+    - ffmpeg
 ---
 
 # Daily News Caster Skill
@@ -11,20 +19,16 @@ This skill allows the agent to fetch real-time news, organize it into a conversa
 
 When the user asks to get the latest news and make a podcast out of it, follow these steps strictly:
 
-### Step 1: Ensure Skills are Installed
-If the `news-aggregator-skill` and `tts` skills are not already installed in the workspace, run the following commands to install them:
-```bash
-npx skills add https://github.com/cclank/news-aggregator-skill --skill news-aggregator-skill -y
-npx skills add https://github.com/noizai/skills --skill tts -y
-```
+### Step 1: Ensure Required Skills are Present
+Verify that `news-aggregator-skill` and `tts` exist in the workspace (under `skills/` or `.cursor/skills/`). If either is missing, inform the user which skill(s) are not found and ask them to install manually before proceeding. Do NOT attempt to install skills automatically.
 
 ### Step 2: Fetch the Latest News
-Find the `fetch_news.py` script from the `news-aggregator-skill` (usually located in `.cursor/skills/news-aggregator-skill/scripts/fetch_news.py` or `skills/news-aggregator-skill/scripts/fetch_news.py`).
+Locate `fetch_news.py` from the `news-aggregator-skill` skill directory (e.g., `skills/news-aggregator-skill/scripts/fetch_news.py`). Read its SKILL.md to understand usage if needed.
 
 Run the script to fetch real-time news. You can specify a source (e.g., `hackernews`, `github`, `all`) or keywords based on the user's request.
 Example command:
 ```bash
-python3 path/to/fetch_news.py --source all --limit 10 --deep
+python3 skills/news-aggregator-skill/scripts/fetch_news.py --source all --limit 10 --deep
 ```
 
 ### Step 3: Draft the Podcast Script (Internal Step)
@@ -36,7 +40,7 @@ The script should be:
 - **Clearly Labeled Speakers:** Start each line or paragraph with the speaker's name (e.g., `Host A:` or `Host B:`).
 - **Clear text for speech:** Avoid complex URLs, raw markdown links, or unpronounceable characters in the spoken text.
 
-Save this script to a local file named `podcast_script.md`. **Do NOT output the full markdown script to the user yet.**
+Save this script to a local file named `podcast_script.md`.
 
 **Example `podcast_script.md` Content:**
 ```markdown
@@ -58,16 +62,14 @@ Save this script to a local file named `podcast_script.md`. **Do NOT output the 
 ### Step 4: Generate the Podcast Audio Line-by-Line
 To avoid sending the entire script to the API at once, you must generate the audio **sentence by sentence (一人一句地生成)** and then concatenate them.
 
-Find the `tts.sh` script (usually located in `skills/tts/scripts/tts.sh` or `.cursor/skills/tts/scripts/tts.sh`).
+Use the `tts.sh` script from the local `tts` skill (e.g., `skills/tts/scripts/tts.sh`). Read the tts skill's SKILL.md for full usage details.
 
 **1. Generate Audio for Each Line**:
-For each dialogue line in the script, run the `speak` command. Use the appropriate voice or reference audio for the respective host. **If the user provided reference audio files or URLs for the two roles**, use them via the `--ref-audio` flag (requires `noiz` backend).
+For each dialogue line in the script, run the `speak` command. Use the appropriate voice or reference audio for the respective host. If the user provided reference audio files for the two roles, use them via the `--ref-audio` flag (requires `noiz` backend).
 ```bash
-# Example for Line 1 (Host A)
-bash path/to/tts.sh speak -t "Welcome to today's news roundup..." --backend noiz --ref-audio path/to/host_A.wav -o line_01.wav
+bash skills/tts/scripts/tts.sh speak -t "Welcome to today's news roundup..." --backend noiz --ref-audio host_A.wav -o line_01.wav
 
-# Example for Line 2 (Host B)
-bash path/to/tts.sh speak -t "The main takeaway is that..." --backend noiz --ref-audio path/to/host_B.wav -o line_02.wav
+bash skills/tts/scripts/tts.sh speak -t "The main takeaway is that..." --backend noiz --ref-audio host_B.wav -o line_02.wav
 ```
 
 **2. Concatenate the Audio Files**:
