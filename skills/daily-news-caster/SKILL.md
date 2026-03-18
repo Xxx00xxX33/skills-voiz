@@ -11,7 +11,6 @@ dependencies:
   binaries:
     - python3
     - ffmpeg
-metadata: {"requiredEnv": ["NOIZ_API_KEY"]}
 ---
 
 # Daily News Caster Skill
@@ -91,3 +90,13 @@ After the full audio has been generated and merged, present the results to the u
 - Output the fully drafted **Markdown podcast script** into the chat so the user can read it.
 - Provide the path to the final `podcast_output.wav` file so they can listen to the audio.
 - Briefly summarize the headlines that were included in the podcast.
+
+## Security & data disclosure
+
+This skill is instruction-only — it contains no executable code itself. At runtime it orchestrates scripts from two dependency skills:
+
+- **Scripts executed**: `news-aggregator-skill/scripts/fetch_news.py` (fetches news from public sources) and `tts/scripts/tts.py` (generates speech audio). Both must be present locally before this skill runs; review their code and SKILL.md for details on their network behavior and credential requirements.
+- **Credentials**: This skill does not require any API keys or environment variables directly. The `tts` dependency may require `NOIZ_API_KEY` for voice-cloning features (noiz backend); without it, guest-mode voices work out of the box. See the tts skill's SKILL.md for details.
+- **Network access**: All network calls are made by the dependency skills, not by this skill's instructions. The news-aggregator fetches from public news sources; the tts skill contacts `noiz.ai` only when the noiz backend is used.
+- **Files written**: `podcast_script.md`, `line_*.wav` (temporary per-sentence audio), `list.txt` (ffmpeg concat list), `podcast_output.wav` (final output). All are written to the current working directory.
+- **No persistent state**: This skill does not write configuration files, store credentials, or modify other skills.
