@@ -37,6 +37,7 @@ npx skills add . --list --full-depth
 | characteristic-voice | 通过语气词、情绪参数和场景预设，让生成语音更有陪伴感和人格化表达。 | [SKILL.md](./skills/characteristic-voice/SKILL.md) | `npx skills add NoizAI/skills --full-depth --skill characteristic-voice -y` |
 | video-translation | 将视频语音翻译成另一种语言，用 TTS 生成配音并替换原始音轨，同时保留视频画面。 | [SKILL.md](./skills/video-translation/SKILL.md) | `npx skills add NoizAI/skills --full-depth --skill video-translation -y` |
 | daily-news-caster | 获取最新的实时新闻，并自动生成双人对话式的播客音频。 | [SKILL.md](./skills/daily-news-caster/SKILL.md) | `npx skills add NoizAI/skills --full-depth --skill daily-news-caster -y` |
+| sound-fx | 用一句话生成任意音效——动物叫声、氛围背景音、搞笑卡通音、科幻音效……1–30 秒，WAV/MP3/FLAC 输出，一行命令搞定。 | [SKILL.md](./skills/sound-fx/SKILL.md) | `npx skills add NoizAI/skills --full-depth --skill sound-fx -y` |
 
 ## 快速验证
 

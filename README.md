@@ -37,6 +37,7 @@ npx skills add . --list --full-depth
 | characteristic-voice | Make generated speech feel companion-like with fillers, emotional tuning, and preset speaking styles. | [SKILL.md](./skills/characteristic-voice/SKILL.md) | `npx skills add NoizAI/skills --full-depth --skill characteristic-voice -y` |
 | video-translation | Translate and dub videos from one language to another, replacing the original audio with TTS while keeping the video intact. | [SKILL.md](./skills/video-translation/SKILL.md) | `npx skills add NoizAI/skills --full-depth --skill video-translation -y` |
 | daily-news-caster | Fetch the latest real-time news and automatically generate a dual-host conversational podcast with audio. | [SKILL.md](./skills/daily-news-caster/SKILL.md) | `npx skills add NoizAI/skills --full-depth --skill daily-news-caster -y` |
+| sound-fx | Generate any sound effect from a text description — animals, ambience, cartoon sounds, sci-fi, and more. One command, 1–30 seconds, WAV/MP3/FLAC output. | [SKILL.md](./skills/sound-fx/SKILL.md) | `npx skills add NoizAI/skills --full-depth --skill sound-fx -y` |
 
 ## Quick Verify
 
