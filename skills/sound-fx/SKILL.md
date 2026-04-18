@@ -115,6 +115,10 @@ On success, the audio file is saved to the output path and the URL is printed:
   URL: https://storage.googleapis.com/...
 ```
 
+## Third-Party Integration
+
+To send generated sound effects to Discord, Telegram, Feishu, or mix them into videos with ffmpeg, see [ref_3rd_party.md](ref_3rd_party.md).
+
 ## Requirements
 
 - Python 3.6+
