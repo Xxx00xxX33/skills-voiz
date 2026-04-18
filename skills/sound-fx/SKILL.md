@@ -22,18 +22,18 @@ Generate any sound effect from a text description — footsteps, explosions, car
 ## Quick Start
 
 ```bash
-# Generate a 5-second sound effect
-python3 skills/sound-fx/scripts/sfx.py "a cat knocking things off a table"
+# Animals
+python3 skills/sound-fx/scripts/sfx.py "a cat purring contentedly, deep rumbling vibration" -d 8
+python3 skills/sound-fx/scripts/sfx.py "dog sneezing three times in a row" -d 3
+python3 skills/sound-fx/scripts/sfx.py "dog eating food really fast, chomping and gulping" -d 4
 
-# Specify duration (1-30 seconds)
-python3 skills/sound-fx/scripts/sfx.py "heavy rain on a tin roof" --duration 10 -o rain.wav
+# Funny
+python3 skills/sound-fx/scripts/sfx.py "cartoon character getting spanked, exaggerated squeaky yelp" -d 2
+python3 skills/sound-fx/scripts/sfx.py "someone sitting on a whoopee cushion mid-meeting" -d 2
 
-# Funny / expressive examples
-python3 skills/sound-fx/scripts/sfx.py "cartoon character getting spanked, exaggerated yelp" --duration 3
-python3 skills/sound-fx/scripts/sfx.py "dramatic anime nosebleed sound effect" --duration 2
-python3 skills/sound-fx/scripts/sfx.py "someone slipping on a banana peel, cartoon slide and thud" --duration 3
-python3 skills/sound-fx/scripts/sfx.py "evil villain laugh echoing in a dungeon" --duration 5
-python3 skills/sound-fx/scripts/sfx.py "notification sound for receiving a love letter" --duration 2
+# Ambient (save to file)
+python3 skills/sound-fx/scripts/sfx.py "heavy rain on a tin roof" -d 15 -o rain.wav
+python3 skills/sound-fx/scripts/sfx.py "campfire crackling at night, crickets in background" -d 15 -o campfire.wav
 ```
 
 ## Arguments
@@ -60,21 +60,51 @@ Get your API key at [developers.noiz.ai](https://developers.noiz.ai/api-keys).
 
 ## Fun Example Prompts
 
+### 🐾 Animals
 | Prompt | Suggested Duration |
 |--------|--------------------|
-| `"cartoon character getting spanked, exaggerated squeaky yelp"` | 2–3s |
-| `"dramatic fail horn (wah wah wah)"` | 3s |
+| `"a cat purring contentedly, deep rumbling vibration"` | 8s |
+| `"cat hissing and yowling aggressively"` | 3s |
+| `"cat knocking a glass off the table, crash"` | 2s |
+| `"dog sneezing three times in a row"` | 3s |
+| `"small dog barking excitedly at a doorbell"` | 4s |
+| `"dog howling dramatically at the moon"` | 5s |
+| `"dog eating food really fast, chomping and gulping"` | 4s |
+| `"hamster running furiously on a squeaky wheel"` | 6s |
+| `"parrot perfectly mimicking a phone ringing"` | 3s |
+| `"frog croaking in a pond at night"` | 8s |
+
+### 😂 Funny & Expressive
+| Prompt | Suggested Duration |
+|--------|--------------------|
+| `"cartoon character getting spanked, exaggerated squeaky yelp"` | 2s |
+| `"dramatic fail horn (wah wah wah wah)"` | 3s |
+| `"someone sitting on a whoopee cushion mid-meeting"` | 2s |
 | `"anime power-up charging sound"` | 5s |
-| `"someone aggressively typing on a mechanical keyboard"` | 5s |
+| `"someone slipping on a banana peel, cartoon slide and crash"` | 3s |
 | `"dramatic chipmunk stare — suspenseful strings"` | 3s |
-| `"rubber duck squeak in a bathroom"` | 1s |
-| `"monster truck engine revving"` | 5s |
-| `"spaceship laser blaster"` | 2s |
+| `"rubber duck squeak three times"` | 2s |
+| `"evil villain laugh echoing in a dungeon"` | 5s |
 | `"crowd gasping in disbelief"` | 3s |
-| `"old dial-up modem connecting"` | 10s |
 | `"a notification sound that sounds passive-aggressive"` | 2s |
-| `"thunder clap with heavy rain on a metal roof"` | 10s |
-| `"coffee machine brewing and steam hissing"` | 8s |
+| `"someone aggressively typing on a mechanical keyboard"` | 5s |
+
+### 🌍 Ambient & Atmosphere
+| Prompt | Suggested Duration |
+|--------|--------------------|
+| `"heavy rain and thunder on a metal roof"` | 15s |
+| `"busy coffee shop, background chatter and espresso machine"` | 15s |
+| `"old dial-up modem connecting to the internet"` | 10s |
+| `"campfire crackling at night, crickets in background"` | 15s |
+| `"ocean waves gently crashing on a beach"` | 15s |
+
+### 🎮 Action & Sci-Fi
+| Prompt | Suggested Duration |
+|--------|--------------------|
+| `"spaceship laser blaster"` | 2s |
+| `"monster truck engine revving"` | 5s |
+| `"sword being unsheathed from scabbard"` | 2s |
+| `"video game level-up fanfare"` | 3s |
 
 ## Output
 
